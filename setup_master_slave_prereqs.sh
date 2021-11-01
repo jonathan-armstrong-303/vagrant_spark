@@ -38,20 +38,38 @@
   apt-get update
   apt-get install oracle-java8-installer
 
-echo "Checking java version installed... 3 second sleep..."
+echo "Checking java version installed... 2 second sleep..."
   java -version
-sleep 3
+sleep 2
 
 echo "Installing Scala"
   apt-get install scala
 
-echo "Checking Scala version installed... 3 second sleep..."
+echo "Checking Scala version installed... 2 second sleep..."
   scala -version
-sleep 3
+sleep 2
 
 current_ip=`hostname -i`
 if [ ${current_ip} == ${spark_master_ip} ]; then
   apt-get install openssh-server openssh-client
 fi
 
+#change the directory ownership to sparkadmin after creation
+#[] -- JUST DON'T KNOW WHAT DIRECTORY TO CHANGE OWNERSHIP TO YET. IS IT SPARKADMIN OR SPARK?
+#CAN'T THINK RIGHT NOW...
+#   sudo chown -R gpadmin:gpadmin /usr/local/greenplum*
+#   sudo chgrp -R gpadmin /usr/local/greenplum* 
+#[] DOES /usr/local/spark exist after install?
+
+wget https://www.apache.org/dyn/closer.lua/spark/spark-3.1.2/spark-3.1.2-bin-hadoop3.2.tgz
+
+tar -xvf spark-3.1.2-bin-hadoop3.2.tgz
+
+mv spark-3.1.2-bin-hadoop3.2 /usr/local/spark
+
+#[] Here, I am _trying_ to run everything as sparkadmin and edit the sparkadmin .bashrc file.
+
+echo "export PATH = $PATH:/usr/local/spark/bin" >> /usr/local/sparkadmin/.bashrc
+
+source /usr/local/sparkadmin/.bashrc
 

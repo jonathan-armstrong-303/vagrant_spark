@@ -3,33 +3,12 @@
 # run this whole preliminary install as root
   sudo su -
 
-# assign password -- needs to be the same throughout the process of course
-  sparkadmin_password="r0xs0xb0x"
-
-# Create sparkadmin user and group 
-# Note -- take out the hash before the "EOF" -- only added because the << messed up vi display colors
-   groupadd sparkadmin
-   useradd sparkadmin -r -m -g sparkadmin
-   /usr/bin/expect <<EOF
-   spawn passwd sparkadmin
-   expect "New password: "
-   send "${sparkadmin_password}\r"
-   expect "Retype new password: "
-   send  "${sparkadmin_password}\r"
-   expect "passwd: all authentication tokens updated successfully."
-EOF
-
-# Allow sparkadmin sudo privileges and get rid of password prompt annoyance
-   #actual GP documentation states to use "wheel" line below... ymmv
-   #%wheel        ALL=(ALL)       NOPASSWD: ALL
-   echo "sparkadmin ALL=(ALL) ALL" >> /etc/sudoers
-   echo "sparkadmin ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
-
 # activities to facilitate passwordless ssh.
 # make ssh directory and apply right permissions.  Very important!
 #################################################################
 # RUN EVERYTHING BELOW HERE AS SPARKADMIN WITH DIFFERENT SCRIPT #
 #################################################################
+#[]
 
   cd /home/sparkadmin
   mkdir ~/.ssh
@@ -100,19 +79,14 @@ spark_server="slave2"
   expect
 EOF
 
-# Grant sparkadmin sudo privileges.  This eliminiates the (IMHO annoying)
-# need to enter the password every time you sudo.
+# 
+cp /usr/local/spark/conf/spark-env.sh.template  /usr/local/spark/conf/spark-env.sh
 
-echo "sparkadmin ALL=(ALL) ALL" >> /etc/sudoers
-echo "sparkadmin ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+echo "export SPARK_MASTER_HOST='<MASTER-IP>'" >> /usr/local/spark/conf/spark-env.sh
+echo "export JAVA_HOME=`which java`" >> /usr/local/spark/conf/spark-env.sh
 
-#change the directory ownership to sparkadmin after creation
-#[] -- I just don't know what directory(s) exactly to change yet
-#   sudo chown -R gpadmin:gpadmin /usr/local/greenplum*
-#   sudo chgrp -R gpadmin /usr/local/greenplum* 
+echo "master" > /usr/local/spark/conf/slaves
+echo "slave01" > /usr/local/spark/conf/slaves
+echo "slave02" > /usr/local/spark/conf/slaves
 
-wget https://www.apache.org/dyn/closer.lua/spark/spark-3.1.2/spark-3.1.2-bin-hadoop3.2.tgz
 
-tar -xvf spark-3.1.2-bin-hadoop3.2.tgz
-
-# DO EVERYTHING BELOW "SPARK MASTER CONFIGURATION" SECTION
