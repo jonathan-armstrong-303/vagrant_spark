@@ -17,14 +17,14 @@
   echo "set -o vi" >> ~/.bashrc
 
 # Set up some useful aliases [note user is root -- we will set up for gpadmin later]
-  echo "alias master='ssh root@${spark_master_ip}'" >> /root/.bashrc
-  echo "alias slave1='ssh root@${spark_slave_ip_1}'" >> /root/.bashrc
-  echo "alias slave2='ssh root@${spark_slave_ip_2}'" >> /root/.bashrc
+  echo "alias master='ssh root@${spark_master_ip}'" >> ~/.bashrc
+  echo "alias slave1='ssh root@${spark_slave_ip_1}'" >> ~/.bashrc
+  echo "alias slave2='ssh root@${spark_slave_ip_2}'" >> ~/.bashrc
 
 # modify /etc/hosts for Spark cluster
-  echo "192.168.10.100 master" >> /etc/hosts
-  echo "192.168.10.101 slave01" >> /etc/hosts
-  echo "192.168.10.102 slave02" >> /etc/hosts
+  echo ${spark_master_ip} "master" >> /etc/hosts
+  echo ${spark_slave_ip_1} "slave01" >> /etc/hosts
+  echo ${spark_slave_ip_2} "slave02" >> /etc/hosts
 
 # Note: the formerly trusty "ppa:webupd8team/java" repo was discontinued sometime in 2019
 # due to some Oracle/Java licensing chicanery.  In the event the ppa:ts.sch.gr/ppa subtitute
@@ -33,10 +33,13 @@
 
   echo "Installing Java using Oracle package"
 
-  apt-get install python-software-properties
-  add-apt-repository ppa:ts.sch.gr/ppa
-  apt-get update
-  apt-get install oracle-java8-installer
+  add-apt update
+  add-apt upgrade
+
+  apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 0xB1998361219BD9C9
+  apt-add-repository 'deb http://repos.azulsystems.com/ubuntu stable main'
+  apt update
+  apt install zulu-14
 
 echo "Checking java version installed... 2 second sleep..."
   java -version
@@ -49,6 +52,7 @@ echo "Checking Scala version installed... 2 second sleep..."
   scala -version
 sleep 2
 
+# only install openssh-server on master
 current_ip=`hostname -i`
 if [ ${current_ip} == ${spark_master_ip} ]; then
   apt-get install openssh-server openssh-client
@@ -61,15 +65,18 @@ fi
 #   sudo chgrp -R gpadmin /usr/local/greenplum* 
 #[] DOES /usr/local/spark exist after install?
 
-wget https://www.apache.org/dyn/closer.lua/spark/spark-3.1.2/spark-3.1.2-bin-hadoop3.2.tgz
+#wget https://www.apache.org/dyn/closer.lua/spark/spark-3.1.2/spark-3.1.2-bin-hadoop3.2.tgz
+  wget -q https://archive.apache.org/dist/spark/spark-3.1.2/spark-3.1.2-bin-hadoop3.2.tgz
 
-tar -xvf spark-3.1.2-bin-hadoop3.2.tgz
+  tar xf spark-3.1.2-bin-hadoop3.2.tgz
 
-mv spark-3.1.2-bin-hadoop3.2 /usr/local/spark
+  mv spark-3.1.2-bin-hadoop3.2 /usr/local/spark
 
 #[] Here, I am _trying_ to run everything as sparkadmin and edit the sparkadmin .bashrc file.
 
-echo "export PATH = $PATH:/usr/local/spark/bin" >> /usr/local/sparkadmin/.bashrc
+#echo "export PATH = $PATH:/usr/local/spark/bin" >> /usr/local/sparkadmin/.bashrc
+echo "export PATH=$PATH:/usr/local/spark/bin" >> ~/.bashrc
 
-source /usr/local/sparkadmin/.bashrc
+source ~/.bashrc
 
+####### AT THIS POINT SEE IF /usr/local/spark directory is created and all ancillary subdirectories /usr/local/spark/conf etc
