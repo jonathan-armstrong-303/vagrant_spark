@@ -1,12 +1,12 @@
-#!/usr/bin/bash
+
 
 # install applications as root
   sudo su -
 
 # assign master and slave IP's
-  spark_master_ip="192.168.10.100"
-  spark_slave_ip_1="192.168.10.101"
-  spark_slave_ip_2="192.168.10.102"
+  spark_master_ip="192.168.0.100"
+  spark_slave_ip_1="192.168.0.101"
+  spark_slave_ip_2="192.168.0.102"
 
 # change to the root directory
   cd /
@@ -33,13 +33,13 @@
 
   echo "Installing Java using Oracle package"
 
-  add-apt update
-  add-apt upgrade
+  apt update
+  apt-get upgrade -y
 
   apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 0xB1998361219BD9C9
-  apt-add-repository 'deb http://repos.azulsystems.com/ubuntu stable main'
+  apt-add-repository 'deb http://repos.azulsystems.com/ubuntu stable main' -y
   apt update
-  apt install zulu-14
+  apt install zulu-14 -y
 
 echo "Checking java version installed... 2 second sleep..."
   java -version
@@ -52,29 +52,12 @@ echo "Checking Scala version installed... 2 second sleep..."
   scala -version
 sleep 2
 
-# only install openssh-server on master
-current_ip=`hostname -i`
-if [ ${current_ip} == ${spark_master_ip} ]; then
-  apt-get install openssh-server openssh-client
-fi
-
-#change the directory ownership to sparkadmin after creation
-#[] -- JUST DON'T KNOW WHAT DIRECTORY TO CHANGE OWNERSHIP TO YET. IS IT SPARKADMIN OR SPARK?
-#CAN'T THINK RIGHT NOW...
-#   sudo chown -R gpadmin:gpadmin /usr/local/greenplum*
-#   sudo chgrp -R gpadmin /usr/local/greenplum* 
-#[] DOES /usr/local/spark exist after install?
-
-#wget https://www.apache.org/dyn/closer.lua/spark/spark-3.1.2/spark-3.1.2-bin-hadoop3.2.tgz
   wget -q https://archive.apache.org/dist/spark/spark-3.1.2/spark-3.1.2-bin-hadoop3.2.tgz
 
   tar xf spark-3.1.2-bin-hadoop3.2.tgz
 
   mv spark-3.1.2-bin-hadoop3.2 /usr/local/spark
 
-#[] Here, I am _trying_ to run everything as sparkadmin and edit the sparkadmin .bashrc file.
-
-#echo "export PATH = $PATH:/usr/local/spark/bin" >> /usr/local/sparkadmin/.bashrc
 echo "export PATH=$PATH:/usr/local/spark/bin" >> ~/.bashrc
 
 source ~/.bashrc

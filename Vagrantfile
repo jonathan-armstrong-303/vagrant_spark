@@ -1,11 +1,13 @@
 Vagrant.configure(2) do |config|
   config.vm.box = "ubuntu/hirsute64"
-  config.disksize.size = '100GB'
+  config.disksize.size = '200GB'
   config.vm.box_download_insecure=true
 
   config.vm.define "spark-master" do |node|
     node.vm.hostname = "spark-master"
     node.vm.network :private_network, ip: "192.168.0.100"
+    node.vm.provision :shell, reboot: true, :path => "disable_selinux.sh"
+    node.vm.provision 'shell', inline: 'sestatus'
 #    node.vm.provision :shell, :path => "setup_master_slave_prereqs.sh"
 #    node.vm.provision :shell, :path => "setup_master.sh"
   end
@@ -14,6 +16,8 @@ Vagrant.configure(2) do |config|
     node.vm.box = "ubuntu/hirsute64"
     node.vm.hostname = "spark-worker-1"
     node.vm.network :private_network, ip: "192.168.0.101"
+    node.vm.provision :shell, reboot: true, :path => "disable_selinux.sh"
+    node.vm.provision 'shell', inline: 'sestatus'
 #    node.vm.provision :shell, :path => "setup_master_slave_prereqs.sh"
 #    node.vm.provision :shell, :path => "setup_slave.sh"
   end
@@ -22,6 +26,8 @@ Vagrant.configure(2) do |config|
     node.vm.box = "ubuntu/hirsute64"
     node.vm.hostname = "spark-worker-2"
     node.vm.network :private_network, ip: "192.168.0.102"
+    node.vm.provision :shell, reboot: true, :path => "disable_selinux.sh"
+    node.vm.provision 'shell', inline: 'sestatus'
 #    node.vm.provision :shell, :path => "setup_master_slave_prereqs.sh"
 #    node.vm.provision :shell, :path => "setup_slave.sh"
   end

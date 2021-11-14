@@ -1,19 +1,18 @@
 #!/bin/bash
 
-# run this whole preliminary install as root
+# run install as root
   sudo su -
-
-# activities to facilitate passwordless ssh.
-# make ssh directory and apply right permissions.  Very important!
-#################################################################
-# RUN EVERYTHING BELOW HERE AS SPARKADMIN WITH DIFFERENT SCRIPT #
-#################################################################
-#[]
 
   cd /home/sparkadmin
   mkdir ~/.ssh
   chmod 700  ~/.ssh
- 
+
+# install expect
+  apt-get install expect -y
+
+# only install openssh-server on master
+  apt-get install openssh-server openssh-client -y
+
 # Generate ssh key
 /usr/bin/expect<<EOF
   spawn ssh-keygen 
@@ -59,7 +58,7 @@ spark_server="master"
   expect
 EOF
 
-spark_server="slave1"
+spark_server="slave01"
   /usr/bin/expect<<EOF
   spawn ssh-copy-id ${spark_server}
   expect "Are you sure you want to continue connecting (yes/no)? "
@@ -69,7 +68,7 @@ spark_server="slave1"
   expect
 EOF
 
-spark_server="slave2"
+spark_server="slave02"
   /usr/bin/expect<<EOF
   spawn ssh-copy-id ${spark_server}
   expect "Are you sure you want to continue connecting (yes/no)? "
@@ -79,7 +78,6 @@ spark_server="slave2"
   expect
 EOF
 
-# 
 cp /usr/local/spark/conf/spark-env.sh.template  /usr/local/spark/conf/spark-env.sh
 
 echo "export SPARK_MASTER_HOST='<MASTER-IP>'" >> /usr/local/spark/conf/spark-env.sh
