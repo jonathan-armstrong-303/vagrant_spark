@@ -1,4 +1,2 @@
-sestatus 
-sudo apt update
-sudo apt install policycoreutils -y
+sestatus
 sed -i 's/SELINUX=[a-z]*/SELINUX=disabled/' /etc/selinux/config
