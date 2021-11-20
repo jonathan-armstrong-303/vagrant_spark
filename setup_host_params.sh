@@ -6,12 +6,11 @@
   sparkadmin_password="r0xs0xb0x"
 
 # assign master and slave IP's
-  spark_master_ip="192.168.0.100"
-  spark_slave_ip_1="192.168.0.101"
-  spark_slave_ip_2="192.168.0.102"
+  spark_master_ip="192.168.0.200"
+  spark_slave_ip_1="192.168.0.201"
+  spark_slave_ip_2="192.168.0.202"
 
 # Create sparkadmin user and group 
-# Note -- take out the hash before the "EOF" -- only added because the << messed up vi display colors
    groupadd sparkadmin
    useradd sparkadmin -r -m -g sparkadmin
    /usr/bin/expect <<EOF
@@ -22,6 +21,21 @@
    send  "${sparkadmin_password}\r"
    expect "passwd: all authentication tokens updated successfully."
 EOF
+
+# setup ssh directories and enforce the (irritatingly particular) permissions on them
+  cd /home/sparkadmin
+  mkdir /home/sparkadmin/.ssh
+  chmod 700  /home/sparkadmin/.ssh
+
+  touch /home/sparkadmin/.ssh/id_rsa
+  touch /home/sparkadmin/.ssh/id_rsa.pub
+  touch /home/sparkadmin/.ssh/authorized_keys
+  touch /home/sparkadmin/.ssh/known_hosts
+
+  chmod 600 /home/sparkadmin/.ssh/id_rsa
+  chmod 644 /home/sparkadmin/.ssh/id_rsa.pub
+  chmod 644 /home/sparkadmin/.ssh/authorized_keys
+  chmod 644 /home/sparkadmin/.ssh/known_hosts
 
 # set up some common aliases and get rid of some of the author's annoyances in both /root and /sparkadmin
   echo "HISTFILESIZE=2000" | tee -a /root/.bashrc /home/sparkadmin/.bashrc
@@ -54,6 +68,9 @@ EOF
 #   ChallengeResponseAuthentication no
 #   UsePAM yes
 
+   sed -ie '/^PermitRootLogin no/d' /etc/ssh/sshd_config
+   sed -ie '/^PermitRootLogin no/PermitRootLogin yes' /etc/ssh/sshd_config
+
    sed -ie '/PasswordAuthentication no/d' /etc/ssh/sshd_config
    sed -ie 's/^#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config
 
@@ -73,13 +90,10 @@ echo "iptables output -- you shouldn't see any rules here..."
   iptables -L -v
 
 echo "Installing Zulu Java JDK"
-
   yum update -y
   yum upgrade -y
-
   yum install -y https://cdn.azul.com/zulu/bin/zulu-repo-1.0.0-1.noarch.rpm
   yum install -y zulu11-jdk
-
 
 # Install Java
 echo "Checking java version installed... 2 second sleep..."
@@ -102,4 +116,4 @@ echo "downloading Spark 3.1.2, untarring, and moving..."
 
 #add stuff to $PATH
 echo "export PATH=$PATH:/usr/local/spark/bin" |tee -a /root/.bashrc /home/sparkadmin/.bashrc
-echo "export PATH=$PATH:`which java`" | tee -a /root/.bashrc /home/sparkadmin/.bashrc
+#echo "export PATH=$PATH:`which java`" | tee -a /root/.bashrc /home/sparkadmin/.bashrc
