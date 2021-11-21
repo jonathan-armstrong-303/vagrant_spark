@@ -12,6 +12,7 @@ cd /
 # Most of these are already installed on Centos/8 base box, but included for posterity -- 
 # namely because I'm trying to get passwordless ssh working using this previous config
 # and a lot of these applications are just useful to have
+
 yum install apr-util -y
 yum install apr -y
 yum install bash -y
