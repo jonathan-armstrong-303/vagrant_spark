@@ -7,12 +7,12 @@ Vagrant.configure(2) do |config|
   config.disksize.size = '100GB'
 
   config.vm.define "spark-master" do |node|
-        node.vm.hostname = "spark-master"
+        node.vm.hostname = "spark-worker-1"
         node.vm.network :private_network, ip: "192.168.0.201"
         node.vm.provision :shell, reboot: true, :path => "disable_selinux.sh"
         node.vm.provision 'shell', inline: 'sestatus'
         node.vm.provision :shell, :path => "prerequisite_application_install.sh"
-        node.vm.provision :shell, :path => "setup_host_params.sh"
+        node.vm.provision :shell, :path => "setup_workers.sh"
   end
   config.vm.define "spark-worker-1" do |node|
         node.vm.hostname = "spark-worker-1"
@@ -20,15 +20,16 @@ Vagrant.configure(2) do |config|
         node.vm.provision :shell, reboot: true, :path => "disable_selinux.sh"
         node.vm.provision 'shell', inline: 'sestatus'
         node.vm.provision :shell, :path => "prerequisite_application_install.sh"
-        node.vm.provision :shell, :path => "setup_host_params.sh"
+        node.vm.provision :shell, :path => "setup_workers.sh"
   end
   config.vm.define "spark-worker-2" do |node|
-        node.vm.hostname = "spark-worker-2"
+        node.vm.hostname = "spark-master"
         node.vm.network :private_network, ip: "192.168.0.203"
         node.vm.provision :shell, reboot: true, :path => "disable_selinux.sh"
         node.vm.provision 'shell', inline: 'sestatus'
         node.vm.provision :shell, :path => "prerequisite_application_install.sh"
-        node.vm.provision :shell, :path => "setup_host_params.sh"
+        node.vm.provision :shell, :path => "setup_workers.sh"
+	node.vm.provision :shell, :path => "setup_master.sh"
   end
 
   config.vm.provider "virtualbox" do |v|

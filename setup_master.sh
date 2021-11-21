@@ -1,31 +1,27 @@
 #!/bin/bash
 
-# this script should be run as sparkadmin. copy this script over to Vagrant spark-master node
-# with the following command, then just execute it in the home diretory, i.e., 
-# scp setup_master_gpadmin_ssh.sh sparkadmin@spark-master:/home/sparkadmin
+# run as root
+  sudo su -
 
-  sparkadmin_password='r0xs0xb0x'
+# assign password -- needs to be the same throughout the process of course
+  root_password="vagrant"
+  spark_master_ip="128.198.0.200"
 
-# create all necessary files (superfluous? yes, but at least this documents all of the annoying/picky
-# permissions that are necessary as breadcrumbs for future reference
+# activities to facilitate passwordless ssh.
+# make ssh directory and apply right permissions.  Very important!
+
   mkdir -p ~/.ssh
   chmod 700  ~/.ssh
-  touch ~/.ssh/id_rsa
-  touch ~/.ssh/id_rsa.pub
+
+# Apply permissions below.  Superfluous?  Yes. Not all these files are generated, but permissions
+# included for posterity/breadcrumbs since the author can never remember them
   touch ~/.ssh/authorized_keys
   touch ~/.ssh/known_hosts
-  chmod 600 ~/.ssh/id_rsa
-  chmod 644 ~/.ssh/id_rsa.pub
-  chmod 600 ~/.ssh/authorized_keys
+  chmod 644 ~/.ssh/authorized_keys
   chmod 644 ~/.ssh/known_hosts
 
 
-# install expect
-  apt-get install expect -y
-
-# only install openssh-server on master
-  apt-get install openssh-server openssh-client -y
-
+# ACTUALLY RUNNING/TESTING AS ROOT
 # Generate ssh key
 /usr/bin/expect<<EOF
   spawn ssh-keygen 
@@ -38,39 +34,44 @@
   expect
 EOF
 
+  chmod 600 ~/.ssh/id_rsa
+  chmod 644 ~/.ssh/id_rsa.pub
+
 # copy over id_rsa.pub ssh key to standby / segment servers
-# yes, this violates DRY  -- but was having issues wrapping this in a for loop. Go figure!
 
-spark_server="slave01"
+# Was having issues wrapping the expect script in a for loop, hence DRY violation
+# These expect scripts take a few seconds to transpire -- don't get impatient
+sparkserver="slave01"
   /usr/bin/expect<<EOF
-  spawn ssh-copy-id ${spark_server}
-  expect "Are you sure you want to continue connecting (yes/no)? "
+  spawn ssh-copy-id ${sparkserver}
+  expect "Are you sure you want to continue connecting (yes/no/\[fingerprint\])? "
   send "yes\r"
-  expect "${spark_server}'s password: "
-  send  "${sparkadmin_password}\r"
+  expect "root@${sparkserver}'s password: "
+  send  "${root_password}\r"
   expect
 EOF
 
-spark_server="slave02"
+sparkserver="slave02"
   /usr/bin/expect<<EOF
-  spawn ssh-copy-id ${spark_server}
-  expect "Are you sure you want to continue connecting (yes/no)? "
+  spawn ssh-copy-id ${sparkserver}
+  expect "Are you sure you want to continue connecting (yes/no/\[fingerprint\])? "
   send "yes\r"
-  expect "${spark_server}'s password: "
-  send  "${sparkadmin_password}\r"
+  expect "root@${sparkserver}'s password: "
+  send  "${root_password}\r"
   expect
 EOF
 
-# do the remaining config setup as root
+# now finish up some final Spark config file stuff
+# Don't ask me why/how the JAVA_HOME setup works.  If you put the actual JAVA_HOME
+# (i.e., `which java` output) it will double up the JAVA_HOME path and throw
+# the following error when you execute spark-shell:
+# /usr/local/spark/bin/spark-class: line 71: /bin/java/bin/java: Not a directory
 
-  sudo su -
   cp /usr/local/spark/conf/spark-env.sh.template  /usr/local/spark/conf/spark-env.sh
 
-  echo "export SPARK_MASTER_HOST='<MASTER-IP>'" >> /usr/local/spark/conf/spark-env.sh
-  echo "export JAVA_HOME=`which java`" >> /usr/local/spark/conf/spark-env.sh
+  echo "export SPARK_MASTER_HOST='${spark_master_ip}'" >> /usr/local/spark/conf/spark-env.sh
+  echo "export JAVA_HOME=/" >> /usr/local/spark/conf/spark-env.sh
 
   echo "master" > /usr/local/spark/conf/slaves
-  echo "slave01" > /usr/local/spark/conf/slaves
-  echo "slave02" > /usr/local/spark/conf/slaves
-
-
+  echo "slave01" >> /usr/local/spark/conf/slaves
+  echo "slave02" >> /usr/local/spark/conf/slaves
