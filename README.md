@@ -1,4 +1,4 @@
-# Greenplum 6.1.4 Vagrant build
+# Spark Vagrant build
 ## Synopsis
 
 This project needs very little elaboration --  Vagrant and Virtualbox installation is of course necessary (and don't forget to download the Vagrant box with the first commented-outline in the Vagrantfile).
