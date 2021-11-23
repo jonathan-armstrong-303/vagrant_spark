@@ -3,7 +3,7 @@
 # run as root
   sudo su -
 
-# assign password -- needs to be the same throughout the process of course
+# assign password -- "vagrant" being the default root password in this case
   root_password="vagrant"
   spark_master_ip="128.198.0.200"
 
