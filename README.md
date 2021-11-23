@@ -5,19 +5,16 @@ This project needs very little elaboration --  Vagrant and Virtualbox installati
 
 ## Prerequisites (Hardware)
 
-This was performed on my home Linux desktop (4 cores/4.2 GHz processors/64 GB memory) and allocated 12GB RAM to each of the four Greenplum nodes in Vagrant (admittedly 4GB less than the minimum recommended) running Ubuntu 20.04.
-
-Configuration was tested with Vagrant 2.2.6.  (If Vagrant is not installed, I've provided up-to-date instructions on that below.)
+This was performed on my home Linux desktop (4 cores/4.2 GHz processors/64 GB memory).  Configuration was tested with Vagrant 2.2.6.  (If Vagrant is not installed, I've provided up-to-date instructions on that below.)
 
 ## Installation 
 
-Note that there are five sections regarding installation prerequisites.  [The tl;dr]:
+If Vagrant is not already installed, the following three steps need to be effected.  Instructions are detailed in my Greenplum installation repo found at: https://github.com/jonathan-armstrong-303/vagrant_greenplum_6-1-4_install
 
-1. The Vagrant application itself [if not already installed]
+1. The Vagrant application itself [if not already installed] 
 2. Virtualbox
 3. Some external Vagrant packages (e.g., vagrant-scp, vagrant-disksize -- not always necessary, but nice to have.)
-
-All of the requisite instructions are detailed in my Greenplum installation repo found at: https://github.com/jonathan-armstrong-303/vagrant_greenplum_6-1-4_install
+4. Last of all... don't forget to download the actual box image you want to use (which is found at the outset of my Vagrantfile commented out).
     
 # Tests
 
