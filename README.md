@@ -1,7 +1,7 @@
 # Spark Vagrant build
 ## Synopsis
 
-This project needs very little elaboration --  Vagrant and Virtualbox installation is of course necessary (and don't forget to download the Vagrant box with the first commented-outline in the Vagrantfile).  This build not only goes against the latest stable version of Spark as of time of writing (3.1.2) but also uses the open source Zulu JDK which cirumvents all of the annoyance with Oracle restricting its JDK some time ago.
+This project needs very little elaboration --  Vagrant and Virtualbox installation is of course necessary (and don't forget to download the Vagrant box with the first commented-outline in the Vagrantfile).  This build not only goes against the latest stable version of Spark as of time of writing (3.1.2) but also uses the open source Zulu JDK which circumvents the Oracle JDK license restrictions.
 
 ## Prerequisites (Hardware)
 
